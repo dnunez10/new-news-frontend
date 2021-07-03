@@ -2,18 +2,19 @@ import React from 'react'
 import '../App.css';
 import {Route, Switch, withRouter} from 'react-router-dom'
 import Home from './Home'
+import Signup from './auth/Signup'
 import Dashboard from './Dashboard'
 
 
 class App extends React.Component  {
 
   state={
-    users: {},
+    user: {},
     articles: [],
     comments: [],
     readingLists: [],
     articleReadings: [],
-    isLoggedIn: false,
+    isLoggedIn: "false",
   }
 
   // componentDidMount(){
@@ -34,6 +35,9 @@ class App extends React.Component  {
     .then(data => {
       console.log('success', data)
     }) 
+    .then(error => {
+      console.log("registration error", error)
+    })
 }
 
   render(){
@@ -41,10 +45,13 @@ class App extends React.Component  {
       <div className="App">
       <Switch>
 
-        <Route exact path="/" render={() => <Home addUser={this.addUser}/>}/>
+        <Route exact path="/" render={() => <Home isLoggedIn={this.state.isLoggedIn}/>}/>
 
-        <Route exact path="/dashboard" render={() => <Dashboard />}/>
+        <Route exact path="/dashboard" render={() => <Dashboard isLoggedIn={this.state.isLoggedIn}/>}/>
 
+        <Route exact path="/signup" render={() => <Signup addUser={this.props.addUser}/>}/>
+
+        <Route exact path="/login" render={() => <Signup addUser={this.props.addUser}/>}/>
 
       </Switch>
     </div>
