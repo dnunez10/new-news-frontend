@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
 
-export default class Signup extends Component {
+export default class Login extends Component {
 
     state={
         username: "",
         password: "",
-        password_confirmation: "",
     }
 
     handleSubmit = (e) => {
         e.preventDefault()
-        this.props.addUser(this.state)
+        this.props.login(this.state)
         
     }
 
@@ -23,15 +22,13 @@ export default class Signup extends Component {
     render() {
         return (
             <div>
-                <h3>Signup Here!</h3>
+                <h3>Login Here!</h3>
                 <form onSubmit={this.handleSubmit}>
                     <input type="text" name="username" placeholder="Username" value={this.state.username} onChange={this.handleChange} required/>
 
                     <input type="text" name="password" placeholder="Password" value={this.state.password} onChange={this.handleChange} required/>
 
-                    <input type="text" name="password_confirmation" placeholder="Type Password Again" value={this.state.password_confirmation} onChange={this.handleChange} required/>
-
-                    <button type="submit">Sign me up!</button>
+                    <button type="submit">Login!</button>
                 </form>
                 
             </div>
