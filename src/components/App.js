@@ -1,107 +1,117 @@
 import React from 'react'
 import '../App.css';
 import {Route, Switch, withRouter} from 'react-router-dom'
+// import Navbar from './Navbar';
+import ArticlesList from './ArticlesList';
 import Home from './Home'
-import Login from './auth/Login';
-import Signup from './auth/Signup'
+import Form from './auth/Form';
+import ReadingList from './ReadingList';
 import Dashboard from './Dashboard'
-
 
 class App extends React.Component  {
 
   state={
-    user: {},
-    articles: [],
-    comments: [],
-    readingLists: [],
-    articleReadings: [],
-    isLoggedIn: "false",
+    user: ""
   }
 
-  componentDidMount(){
-    this.checkLogin()
-  }
-
-  fetchArticles(){
-    fetch("http://localhost:3000/articles")
-    .then(res => res.json())
-    .then(data => console.log(data))
-  }
-  
-  handleLogin = (data) =>{
-    this.setState({
-      isLoggedIn: "logged in",
-      user: data.user
-    })
-  }
-  
-  handleAuth = (data) => {
-    this.handleLogin(data)
-    this.props.history.push("/dashboard")
-  }
-
-  
-  addUser = (user) => {
-    let configObj = {
-      method: "POST",
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(user)
+  dynamicArticles = (routerProps) => <ArticlesList articleId={routerProps.match.params.id} />
+  handleDashboard = () => <Dashboard user={this.state.user} />
+  handleAllArticles = () => <ArticlesList addToCollection={this.addToCollection} />
+  handleUserArticles = () => <ReadingList articles={this.state.user.articles} />
+  renderForm = (routerProps) => {
+    if(routerProps.location.pathname === "/login"){
+      return <Form name="Login Form" handleSubmit={this.handleLogin} />
+    } else if (routerProps.location.pathname === "/signup"){
+      return <Form name="Signup Form" handleSubmit={this.handleSignup} />
     }
-    fetch("http://localhost:3000/registrations", configObj,
-    {withCredentials: true})
-    .then(res => res.json())
-    .then(data => {
-      if(data.status === 'created'){
-        this.handleAuth(data)
-      }
-    }) 
-    .catch(error => {
-      console.log("registration error", error)
-    })
   }
-  
-  login = (user) => {
-    let configObj = {
+
+  handleLogin = (info) => {
+    this.handleAuthFetch(info, 'http://localhost:3000/api/v1/login')
+  }
+
+  handleLogout = () => {
+    this.props.history.push('/login')
+    localStorage.clear()
+    this.setState({user: null})
+  }
+
+  handleSignup = (info) => {
+    this.handleAuthFetch(info, 'http://localhost:3000/api/v1/users')
+  }
+
+  handleAuthFetch = (info, request) => {  
+    fetch(request, {
       method: "POST",
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(user)
-    }
-    fetch("http://localhost:3000/sessions", configObj,
-    {withCredentials: true})
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: info.username,
+        password: info.password
+      })
+    })
     .then(res => res.json())
+    // .then(console.log)
     .then(data => {
-      if(data.logged_in === true){
-        this.handleAuth(data)
-      }
-    }) 
-    .catch(error => {
-      console.log("login error", error)
+      console.log(data)
+      this.setState({
+        user: data.user
+      },
+      () => {
+        localStorage.setItem('jwt', data.jwt)
+        this.props.history.push('/dashboard')})
     })
   }
-  
-  checkLogin(){
-    fetch("http://localhost:3000/logged_in", {withCredentials: true})
+
+  addToCollection = (article) => {
+    fetch("http://localhost:3000/api/v1/reading_list", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+      },
+      body: JSON.stringify({article_id: article.id})
+    })
     .then(res => res.json())
-    .then(data => {
-      console.log("logged in?", data)
-    })
-    .catch(error => {
-      console.log("login error", error)
-    })
+    .then(data => this.setState({user: data.user}))
+  }
+
+  componentDidMount() {
+    if (localStorage.jwt) {
+      // console.log(localStorage.jwt)
+      fetch('http://localhost:3000/api/v1/profile', {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization' : `Bearer ${localStorage.jwt}`
+        }
+      })
+      .then(res => res.json())
+      // .then(console.log)
+      .then(data => this.setState({user: data.user}))
+    }
   }
 
   render(){
     return (
       <div className="App">
+
       <Switch>
 
-        <Route exact path="/" render={() => <Home isLoggedIn={this.state.isLoggedIn}/>}/>
+        <Route path="/" exact component={Home}/>
 
-        <Route exact path="/dashboard" render={() => <Dashboard isLoggedIn={this.state.isLoggedIn}/>}/>
+        <Route path="/dashboard" exact component={this.handleDashboard} />
 
-        <Route exact path="/signup" render={() => <Signup addUser={this.addUser}/>}/>
+        <Route path="/login" exact component={this.renderForm} />
 
-        <Route exact path="/login" render={() => <Login login={this.login}/>}/>
+        <Route path="/signup" exact component={this.renderForm} />
+
+        <Route path="/articles" exact component={this.handleAllArticles} />
+        
+        <Route path="/articles/:id" render={this.dynamicArticles} />
+
+        <Route path="/reading_list" exact component={this.handleUserArticles} />
 
       </Switch>
     </div>
