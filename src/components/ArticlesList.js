@@ -1,30 +1,22 @@
 import React, { Component } from 'react'
+import DeleteableArticle from './DeleteableArticle'
 
 export default class ArticlesList extends Component {
-    state = {
-        articles: []
+
+    findArticle = () => {
+        let article = this.props.articles.filter(a => a.id === parseInt(this.props.articleId))
+        article = article[0]
+        return this.props.articles.map(a => <DeleteableArticle key={a.id} a={a}/>)
     }
 
-    componentDidMount(){
-        console.log(this.props.token)
-        fetch("http://localhost:3000/api/v1/articles", {
-            method: "GET",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data)
-            this.setState({articles: data})
-        })
-    }
     render() {
         return (
-            <div>
-                
-            </div>
+            // <div>
+                <div className="ui two column row">
+                {this.props.articles.map(a => (<DeleteableArticle key={a.id} article={a} addToCollection={this.props.addToCollection}/>))}
+                {this.props.articleId ? this.findArticle() : this.props.articles.title}
+                </div>
+            // </div>
         )
     }
 }

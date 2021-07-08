@@ -20,16 +20,25 @@ export default class Form extends Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
+            <div>
+                <br/>
+                <br/>
+                <br/>
+
+            <div className="ui raised very padded text container segment">
+            <form className="ui center form" onSubmit={this.handleSubmit}>
                 <h2>{this.props.name}</h2>
+                <div className="required field">
                 <label htmlFor="username">Username:</label>
                 <input type="text" name="username" placeholder="Username" value={this.state.username} onChange={this.handleChange} required/>
-            
+                </div>
+                <div className="required field">
                 <label htmlFor="password">Password:</label>
                 <input type="password" name="password" placeholder="Password" value={this.state.password} onChange={this.handleChange} required/>
-
-                <input type="submit" value="Submit"/>
-            </form>
+                </div>
+                <button className="ui button" type="submit">Submit</button>
+                </form>
+        </div></div>
         )
     }
 }

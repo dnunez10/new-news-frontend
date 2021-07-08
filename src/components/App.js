@@ -11,21 +11,11 @@ import Dashboard from './Dashboard'
 class App extends React.Component  {
 
   state={
-    user: ""
+    user: "", 
+    articles: []
   }
 
-  dynamicArticles = (routerProps) => <ArticlesList articleId={routerProps.match.params.id} />
-  handleDashboard = () => <Dashboard user={this.state.user} />
-  handleAllArticles = () => <ArticlesList addToCollection={this.addToCollection} />
-  handleUserArticles = () => <ReadingList articles={this.state.user.articles} />
-  renderForm = (routerProps) => {
-    if(routerProps.location.pathname === "/login"){
-      return <Form name="Login Form" handleSubmit={this.handleLogin} />
-    } else if (routerProps.location.pathname === "/signup"){
-      return <Form name="Signup Form" handleSubmit={this.handleSignup} />
-    }
-  }
-
+  
   handleLogin = (info) => {
     this.handleAuthFetch(info, 'http://localhost:3000/api/v1/login')
   }
@@ -35,11 +25,11 @@ class App extends React.Component  {
     localStorage.clear()
     this.setState({user: null})
   }
-
+  
   handleSignup = (info) => {
     this.handleAuthFetch(info, 'http://localhost:3000/api/v1/users')
   }
-
+  
   handleAuthFetch = (info, request) => {  
     fetch(request, {
       method: "POST",
@@ -61,22 +51,23 @@ class App extends React.Component  {
       () => {
         localStorage.setItem('jwt', data.jwt)
         this.props.history.push('/dashboard')})
-    })
-  }
-
-  addToCollection = (article) => {
-    fetch("http://localhost:3000/api/v1/reading_list", {
-      method: "POST",
-      headers: {
+      })
+    }
+    
+    addToCollection = (article) => {
+      fetch("http://localhost:3000/api/v1/reading_list", {
+        method: "POST",
+        headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+        'Authorization': `Bearer ${localStorage.jwt}`
       },
       body: JSON.stringify({article_id: article.id})
     })
     .then(res => res.json())
-    .then(data => this.setState({user: data.user}))
+    .then(console.log)
+    // .then(data => this.setState({user: data.user}))
   }
-
+  
   componentDidMount() {
     if (localStorage.jwt) {
       // console.log(localStorage.jwt)
@@ -91,8 +82,36 @@ class App extends React.Component  {
       // .then(console.log)
       .then(data => this.setState({user: data.user}))
     }
+    this.fetchArticles()
   }
-
+  
+  fetchArticles(){
+    fetch("http://localhost:3000/api/v1/articles", {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      // console.log(data)
+      this.setState({articles: data})
+    })
+  }
+  
+  dynamicArticles = (routerProps) => <ArticlesList articleId={routerProps.match.params.id} />
+  handleDashboard = () => <Dashboard user={this.state.user} />
+  handleAllArticles = () => <ArticlesList articles={this.state.articles} addToCollection={this.addToCollection} />
+  handleUserArticles = () => <ReadingList articles={this.state.user.articles} />
+  renderForm = (routerProps) => {
+    if(routerProps.location.pathname === "/login"){
+      return <Form name="Login Form" handleSubmit={this.handleLogin} />
+    } else if (routerProps.location.pathname === "/signup"){
+      return <Form name="Signup Form" handleSubmit={this.handleSignup} />
+    }
+  }
+  
   render(){
     return (
       <div className="App">
