@@ -3,20 +3,32 @@ import DeleteableArticle from './DeleteableArticle'
 
 export default class ArticlesList extends Component {
 
-    findArticle = () => {
-        let article = this.props.articles.filter(a => a.id === parseInt(this.props.articleId))
-        article = article[0]
-        return this.props.articles.map(a => <DeleteableArticle key={a.id} a={a}/>)
+    // findArticle = () => {
+    //     let article = this.props.articles.filter(a => a.id === parseInt(this.props.articleId))
+    //     article = article[0]
+    //     return this.props.articles.map(a => <DeleteableArticle key={a.id} a={a}/>)
+    // }
+
+    randomArticles = (a) => {
+        let i = a.length - 1
+        for(i; i>0; i--){
+            const r = Math.floor(Math.random() * (i + 1))
+            const temp = a[i]
+            a[i] = a[r]
+            a[r] = temp
+        }
+        return a
     }
 
+
     render() {
+        const random = this.randomArticles(this.props.articles)
         return (
-            // <div>
+            <div>
                 <div className="ui two column row">
-                {this.props.articles.map(a => (<DeleteableArticle key={a.id} article={a} addToCollection={this.props.addToCollection}/>))}
-                {this.props.articleId ? this.findArticle() : this.props.articles.title}
+                {random.map(a => (<DeleteableArticle key={a.id} article={a} comments={this.props.handleComments} addToCollection={this.props.addToCollection}/>))}
                 </div>
-            // </div>
+            </div>
         )
     }
 }
