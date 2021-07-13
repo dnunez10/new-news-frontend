@@ -22,11 +22,11 @@ export default class ArticlesList extends Component {
 
 
     render() {
-        const random = this.randomArticles(this.props.articles)
+        let random = this.randomArticles(this.props.articles)
         return (
             <div>
                 <div className="ui two column row">
-                {random.map(a => (<DeleteableArticle key={a.id} article={a} comments={this.props.handleComments} addToCollection={this.props.addToCollection}/>))}
+                {random.map(a => (<DeleteableArticle key={a.id} article={a} user={this.props.user} addComment={this.props.addComment} addToCollection={this.props.addToCollection}/>))}
                 </div>
             </div>
         )

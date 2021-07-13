@@ -3,7 +3,7 @@ import '../App.css';
 import {Route, Switch, withRouter} from 'react-router-dom'
 import Navbar from './Navbar';
 import ArticlesList from './ArticlesList';
-import Comments from './Comments';
+// import Comments from './Comments';
 import Home from './Home'
 import Form from './auth/Form';
 import ReadingList from './ReadingList';
@@ -13,7 +13,7 @@ class App extends React.Component  {
 
   state={
     user: "", 
-    articles: []
+    articles: [],
   }
 
   
@@ -45,7 +45,6 @@ class App extends React.Component  {
     .then(res => res.json())
     // .then(console.log)
     .then(data => {
-      console.log(data)
       this.setState({
         user: data.user
       },
@@ -62,24 +61,32 @@ class App extends React.Component  {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('jwt')}`
       },
-      body: JSON.stringify({article_id: article.id})
+      body: JSON.stringify({article_id: article.id, reading_list_id: this.state.user.reading_list.id})
     })
     .then(res => res.json())
     .then(data => console.log(data))
     // .then(data => this.setState({user: data.user}))
   }
 
-  userComments = (comment) => {
+  addComment = (comment, article_id) => {
+    // console.log(comment, article_id)
     fetch("http://localhost:3000/api/v1/comments", {
-      method: "GET",
+      method: "POST",
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+        'Authorization': `Bearer ${localStorage.jwt}`
       },
-      body: JSON.stringify({comment_id: comment.id})
+      body: JSON.stringify({comment: comment, article_id: article_id})
     })
     .then(res => res.json())
-    .then(data => console.log(data))
+    .then(data => {
+      this.setState({
+        articles: data.comment
+      },
+      () => {
+        localStorage.setItem('jwt', data.jwt)
+      })
+    })
   }
   
   componentDidMount() {
@@ -109,18 +116,15 @@ class App extends React.Component  {
     })
     .then(res => res.json())
     .then(data => {
-      // console.log(data)
       this.setState({articles: data})
     })
   }
 
-
+ 
   
   handleDashboard = () => <Dashboard user={this.state.user} />
 
-  handleComments = () => <Comments user={this.state.user} userComments={this.userComments} />
-
-  handleAllArticles = () => <ArticlesList handleComments={this.handleComments} articles={this.state.articles} addToCollection={this.addToCollection} />
+  handleAllArticles = () => <ArticlesList user={this.state.user} articles={this.state.articles} addComment={this.addComment} addToCollection={this.addToCollection} />
 
   handleUserArticles = () => <ReadingList articles={this.state.user.articles}/>
 
