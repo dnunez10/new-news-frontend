@@ -3,8 +3,9 @@ import React from 'react'
 
 export default class Article extends React.Component {
     state={
-        comment: ""
+        comment: "",
     }
+
     alert() {
         return alert("You are now leaving this page")
     }
@@ -23,12 +24,22 @@ export default class Article extends React.Component {
         // this.props.key 
     }
 
-    comment = () => {
-        console.log(this.props.article)
-        this.props.article.comments.map(c => ( 
-            <div className="comment">{c.comment}</div>
-        ))
-    }
+    // deleteComment = (comment) => {
+    //     fetch(`http://localhost:3000/api/v1/comments/${comment.id}`, {
+    //         method: "DELETE",
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'Authorization': `Bearer ${localStorage.jwt}`
+    //           }
+    //     })
+    //     .then(console.log())
+    //     // .then(() => {
+    //     //     let comment = this.state.comment
+    //     //     let index = comment.indexOf(comment)
+    //     //     comment.splice(index, 1)
+    //     //     this.setState({comment: comment})
+    //     // })
+    // }
 
     render() {
         return (
@@ -49,19 +60,19 @@ export default class Article extends React.Component {
 
                             </div>
                             <br />
-                            <button className="ui button" onClick={() => this.props.addToCollection(this.props.article)}>Add to reading list</button>
+                            {/* <button className="ui button" onClick={() => this.props.addToCollection(this.props.article)}>Add to reading list</button> */}
 
 
                             <div className="ui comments">
-                                <h3 className="ui dividing header">Comments</h3>
-                                <div className="comments">
-                                        {this.props.article.comments.map(c => (
-                                        <div className="comment">{c.comment} {c.user_id.name}</div>))}
-                                            
+                                <div className="ui dividing header">
+                                    <h3>Reviews</h3>
                                     <form onSubmit={this.handleSubmit}>
                                         <input type="text"  name="comment" value={this.state.comment} onChange={this.handleChange}/>
-                                        <input type="submit" value="Submit"/>
-                                    </form>
+                                        <input className="ui tiny basic button" type="submit" value="Leave a Review"/>
+                                    </form></div>
+                                <div className="comments">
+                                        {this.props.article.comments.map(c => (<div className="comment">"{c.comment}" <i onClick={() => this.props.deleteComment(c)} className="times icon"></i></div>))}
+                                        
                                 </div>
                             </div>
                         </div>

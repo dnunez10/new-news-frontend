@@ -79,16 +79,31 @@ class App extends React.Component  {
       body: JSON.stringify({comment: comment, article_id: article_id})
     })
     .then(res => res.json())
+    // .then(console.log)
     .then(data => {
-      this.setState({
-        articles: data.comment
-      },
-      () => {
-        localStorage.setItem('jwt', data.jwt)
-      })
+      // console.log(data)
+      if(this.state.articles.id === data.comment.article_id){
+        this.setState({
+          articles: [...this.state.articles, data.comment]
+        })
+      }
+      // check article_id matches data.comment.article_id
+      // if they match add the data.comment to article comments array
     })
   }
   
+  deleteComment = (comment) => {
+    fetch(`http://localhost:3000/api/v1/comments/${comment.id}`, {
+        method: "DELETE",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.jwt}`
+          }
+    })
+    .then(res => res.json())
+}
+
+
   componentDidMount() {
     if (localStorage.jwt) {
       // console.log(localStorage.jwt)
@@ -124,7 +139,7 @@ class App extends React.Component  {
   
   handleDashboard = () => <Dashboard user={this.state.user} />
 
-  handleAllArticles = () => <ArticlesList user={this.state.user} articles={this.state.articles} addComment={this.addComment} addToCollection={this.addToCollection} />
+  handleAllArticles = () => <ArticlesList user={this.state.user} articles={this.state.articles} addComment={this.addComment} deleteComment={this.deleteComment} addToCollection={this.addToCollection} />
 
   handleUserArticles = () => <ReadingList articles={this.state.user.articles}/>
 
@@ -139,6 +154,7 @@ class App extends React.Component  {
 
   
   render(){
+    // console.log(this.state.articles)
     return (
       <div className="App">
         <Navbar handleLogout={this.handleLogout}/>

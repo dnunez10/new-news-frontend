@@ -16,7 +16,7 @@ export default class DeleteableArticle extends Component {
             <DeleteConfirm handleCancel={this.handleToggle}
             article={this.props.article}/>    
         ) : (
-            <Article id={this.props.article.id} article={this.props.article} user={this.props.user} addComment={this.props.addComment} handleDelete={this.handleToggle} addToCollection={this.props.addToCollection} />
+            <Article id={this.props.article.id} article={this.props.article} user={this.props.user} addComment={this.props.addComment} deleteComment={this.props.deleteComment} handleDelete={this.handleToggle} addToCollection={this.props.addToCollection} />
         )
     }
 }

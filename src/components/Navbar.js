@@ -10,9 +10,9 @@ export default class Navbar extends Component {
                 <a href="/dashboard" className="item">
                     Home
                 </a>
-                <a href="/my_list" className="item">
+                {/* <a href="/my_list" className="item">
                     My Reading List
-                </a>
+                </a> */}
                 <div className="item">
                 <a onClick={() => this.props.handleLogout()} href="/">Logout</a>
                 </div>

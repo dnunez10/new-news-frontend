@@ -9,24 +9,24 @@ export default class ArticlesList extends Component {
     //     return this.props.articles.map(a => <DeleteableArticle key={a.id} a={a}/>)
     // }
 
-    randomArticles = (a) => {
-        let i = a.length - 1
-        for(i; i>0; i--){
-            const r = Math.floor(Math.random() * (i + 1))
-            const temp = a[i]
-            a[i] = a[r]
-            a[r] = temp
-        }
-        return a
-    }
+    // randomArticles = (a) => {
+    //     let i = a.length - 1
+    //     for(i; i>0; i--){
+    //         const r = Math.floor(Math.random() * (i + 1))
+    //         const temp = a[i]
+    //         a[i] = a[r]
+    //         a[r] = temp
+    //     }
+    //     return a
+    // }
 
 
     render() {
-        let random = this.randomArticles(this.props.articles)
+        // let random = this.randomArticles(this.props.articles)
         return (
             <div>
                 <div className="ui two column row">
-                {random.map(a => (<DeleteableArticle key={a.id} article={a} user={this.props.user} addComment={this.props.addComment} addToCollection={this.props.addToCollection}/>))}
+                {this.props.articles.map(a => (<DeleteableArticle key={a.id} article={a} user={this.props.user} addComment={this.props.addComment} deleteComment={this.props.deleteComment} addToCollection={this.props.addToCollection}/>))}
                 </div>
             </div>
         )
