@@ -71,7 +71,7 @@ export default class Article extends React.Component {
                                         <input className="ui tiny basic button" type="submit" value="Leave a Review"/>
                                     </form></div>
                                 <div className="comments">
-                                        {this.props.article.comments.map(c => (<div className="comment">"{c.comment}" <i onClick={() => this.props.deleteComment(c)} className="times icon"></i></div>))}
+                                        {this.props.article.comments.map(c => (<div className="comment">"{c.comment}" <i onClick={() => this.props.deleteComment(c, this.props.article.id)} className="times icon"></i></div>))}
                                         
                                 </div>
                             </div>

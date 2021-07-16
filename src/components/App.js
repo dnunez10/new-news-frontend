@@ -1,6 +1,6 @@
 import React from 'react'
 import '../App.css';
-import {Route, Switch, withRouter} from 'react-router-dom'
+import { Route, Switch, withRouter } from 'react-router-dom'
 import Navbar from './Navbar';
 import ArticlesList from './ArticlesList';
 // import Comments from './Comments';
@@ -9,14 +9,14 @@ import Form from './auth/Form';
 import ReadingList from './ReadingList';
 import Dashboard from './Dashboard'
 
-class App extends React.Component  {
+class App extends React.Component {
 
-  state={
-    user: "", 
+  state = {
+    user: "",
     articles: [],
   }
 
-  
+
   handleLogin = (info) => {
     this.handleAuthFetch(info, 'http://localhost:3000/api/v1/login')
   }
@@ -24,14 +24,14 @@ class App extends React.Component  {
   handleLogout = () => {
     this.props.history.push('/login')
     localStorage.clear()
-    this.setState({user: null})
+    this.setState({ user: null })
   }
-  
+
   handleSignup = (info) => {
     this.handleAuthFetch(info, 'http://localhost:3000/api/v1/users')
   }
-  
-  handleAuthFetch = (info, request) => {  
+
+  handleAuthFetch = (info, request) => {
     fetch(request, {
       method: "POST",
       headers: {
@@ -42,29 +42,30 @@ class App extends React.Component  {
         password: info.password
       })
     })
-    .then(res => res.json())
-    // .then(console.log)
-    .then(data => {
-      this.setState({
-        user: data.user
-      },
-      () => {
-        localStorage.setItem('jwt', data.jwt)
-        this.props.history.push('/dashboard')})
+      .then(res => res.json())
+      // .then(console.log)
+      .then(data => {
+        this.setState({
+          user: data.user
+        },
+          () => {
+            localStorage.setItem('jwt', data.jwt)
+            this.props.history.push('/dashboard')
+          })
       })
-    }
-    
-    addToCollection = (article) => {
-      fetch("http://localhost:3000/api/v1/article_readings", {
-        method: "POST",
-        headers: {
+  }
+
+  addToCollection = (article) => {
+    fetch("http://localhost:3000/api/v1/article_readings", {
+      method: "POST",
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('jwt')}`
       },
-      body: JSON.stringify({article_id: article.id, reading_list_id: this.state.user.reading_list.id})
+      body: JSON.stringify({ article_id: article.id, reading_list_id: this.state.user.reading_list.id })
     })
-    .then(res => res.json())
-    .then(data => console.log(data))
+      .then(res => res.json())
+      .then(data => console.log(data))
     // .then(data => this.setState({user: data.user}))
   }
 
@@ -76,32 +77,42 @@ class App extends React.Component  {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.jwt}`
       },
-      body: JSON.stringify({comment: comment, article_id: article_id})
+      body: JSON.stringify({ comment: comment, article_id: article_id })
     })
-    .then(res => res.json())
-    // .then(console.log)
-    .then(data => {
-      // console.log(data)
-      if(this.state.articles.id === data.comment.article_id){
+      .then(res => res.json())
+      // .then(console.log)
+      .then(data => {
+        let firstidx = this.state.articles.findIndex(obj => obj.id === article_id)
+        let secIdx = this.state.articles[firstidx].comments.findIndex(obj => obj.id === comment.id)
+        let newCommentArray = [...this.state.articles[firstidx].comments, data.comment]
+        let newObj = this.state.articles[firstidx]
+        newObj.comments = newCommentArray
         this.setState({
-          articles: [...this.state.articles, data.comment]
+          articles: [...this.state.articles.slice(0, firstidx), ...this.state.articles.slice(firstidx, -1)]
         })
-      }
-      // check article_id matches data.comment.article_id
-      // if they match add the data.comment to article comments array
-    })
+      })
   }
-  
-  deleteComment = (comment) => {
+
+  deleteComment = (comment, article_id) => {
     fetch(`http://localhost:3000/api/v1/comments/${comment.id}`, {
-        method: "DELETE",
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.jwt}`
-          }
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.jwt}`
+      }
     })
-    .then(res => res.json())
-}
+      .then(res => res.json())
+      .then(() => {
+        let firstidx = this.state.articles.findIndex(obj => obj.id === article_id)
+        let secIdx = this.state.articles[firstidx].comments.findIndex(obj => obj.id === comment.id)
+        let newCommentArray = [...this.state.articles[firstidx].comments.slice(0, secIdx), ...this.state.articles[firstidx].comments.slice(secIdx, -1)]
+        let newObj = this.state.articles[firstidx]
+        newObj.comments = newCommentArray
+        this.setState({
+          articles: [...this.state.articles.slice(0, firstidx), ...this.state.articles.slice(firstidx, -1)]
+        })
+      })
+  }
 
 
   componentDidMount() {
@@ -111,17 +122,17 @@ class App extends React.Component  {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
-          'Authorization' : `Bearer ${localStorage.jwt}`
+          'Authorization': `Bearer ${localStorage.jwt}`
         }
       })
-      .then(res => res.json())
-      // .then(console.log)
-      .then(data => this.setState({user: data.user}))
+        .then(res => res.json())
+        // .then(console.log)
+        .then(data => this.setState({ user: data.user }))
     }
     this.fetchArticles()
   }
-    
-  fetchArticles(){
+
+  fetchArticles() {
     fetch("http://localhost:3000/api/v1/articles", {
       method: "GET",
       headers: {
@@ -129,52 +140,52 @@ class App extends React.Component  {
         'Authorization': `Bearer ${localStorage.getItem('jwt')}`
       }
     })
-    .then(res => res.json())
-    .then(data => {
-      this.setState({articles: data})
-    })
+      .then(res => res.json())
+      .then(data => {
+        this.setState({ articles: data })
+      })
   }
 
- 
-  
+
+
   handleDashboard = () => <Dashboard user={this.state.user} />
 
   handleAllArticles = () => <ArticlesList user={this.state.user} articles={this.state.articles} addComment={this.addComment} deleteComment={this.deleteComment} addToCollection={this.addToCollection} />
 
-  handleUserArticles = () => <ReadingList articles={this.state.user.articles}/>
+  handleUserArticles = () => <ReadingList articles={this.state.user.articles} />
 
   renderForm = (routerProps) => {
-    if(routerProps.location.pathname === "/login"){
+    if (routerProps.location.pathname === "/login") {
       return <Form name="Login Form" handleSubmit={this.handleLogin} />
-    } else if (routerProps.location.pathname === "/signup"){
+    } else if (routerProps.location.pathname === "/signup") {
       return <Form name="Signup Form" handleSubmit={this.handleSignup} />
     }
   }
 
 
-  
-  render(){
+
+  render() {
     // console.log(this.state.articles)
     return (
       <div className="App">
-        <Navbar handleLogout={this.handleLogout}/>
+        <Navbar handleLogout={this.handleLogout} />
 
-      <Switch>
+        <Switch>
 
-        <Route path="/" exact component={Home}/>
+          <Route path="/" exact component={Home} />
 
-        <Route path="/dashboard" exact component={this.handleDashboard} />
+          <Route path="/dashboard" exact component={this.handleDashboard} />
 
-        <Route path="/login" exact component={this.renderForm} />
+          <Route path="/login" exact component={this.renderForm} />
 
-        <Route path="/signup" exact component={this.renderForm} />
+          <Route path="/signup" exact component={this.renderForm} />
 
-        <Route path="/articles" exact component={this.handleAllArticles} />
-        
-        <Route path="/my_list" exact component={this.handleUserArticles} />
+          <Route path="/articles" exact component={this.handleAllArticles} />
 
-      </Switch>
-    </div>
+          <Route path="/my_list" exact component={this.handleUserArticles} />
+
+        </Switch>
+      </div>
     )
   }
 }
